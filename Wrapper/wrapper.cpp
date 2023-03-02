@@ -64,19 +64,19 @@ void init_socket()
 	FD_ZERO(&read_fds);
 	fdmax = 0;
 
-    WSAData wsaData;
-    WSAStartup(MAKEWORD(2, 2), &wsaData);
+	WSAData wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-    receiver.init();
-    if (sender.init() == -1)
-    {
-    	printf("It looks like JSBSim is not running yet! Waiting...");
-    	system("timeout 5");
-    	reinit_socket();
-    	return;
+	receiver.init();
+	if (sender.init() == -1)
+	{
+		printf("It looks like JSBSim is not running yet! Waiting...");
+		system("timeout 5");
+		reinit_socket();
+		return;
 	}
-    backreceiver.init();
-    backsender.init();
+	backreceiver.init();
+	backsender.init();
 
 	FD_SET(receiver._skt, &master);
 	FD_SET(backreceiver._skt, &master);
@@ -117,11 +117,11 @@ int main()
 	init_socket();
 
 	char recieved[MESSAGE_LEN + 1];
-    char backreceived[MESSAGE_BACK_LEN + 1];
+	char backreceived[MESSAGE_BACK_LEN + 1];
 
-    while (true)
-    {
-    	read_fds = master;
+	while (true)
+	{
+		read_fds = master;
 		for (int i = 0; i < sizeof(recieved); i++)
 			recieved[i] = 0x00;
 		for (int i = 0; i < sizeof(backreceived); i++)
@@ -136,13 +136,13 @@ int main()
 			{
 				if (i == receiver._skt)
 				{
-			        receiver.receive_udp<char>(recieved[0], sizeof(char) * MESSAGE_LEN);
-			        if (holding && initialized)
-			        {
-			        	char szMsg[8];
-			        	szMsg[7] = 0;
-			        	sprintf(szMsg, "resume\n");
-				        if (!sender.send_tcp<char>(szMsg[0], sizeof(char) * strlen(szMsg)))
+					receiver.receive_udp<char>(recieved[0], sizeof(char) * MESSAGE_LEN);
+					if (holding && initialized)
+					{
+						char szMsg[8];
+						szMsg[7] = 0;
+						sprintf(szMsg, "resume\n");
+						if (!sender.send_tcp<char>(szMsg[0], sizeof(char) * strlen(szMsg)))
 							reinit_socket();
 						else
 							holding = false;
@@ -153,25 +153,25 @@ int main()
 						initialized = true;
 						continue;
 					}
-//			        printf("Got \"%s\" from SimInTech -> Sending to JSBSim\n", recieved);
+//					printf("Got \"%s\" from SimInTech -> Sending to JSBSim\n", recieved);
 					aircmd aircontrolcmd = reinterpret_cast<aircmd&>(recieved);
 					send_aircommand(aircontrolcmd);
 				}
 				else if (i == backreceiver._skt)
 				{
-			        backreceiver.receive_udp<char>(backreceived[0], sizeof(char) * MESSAGE_BACK_LEN);
-			        if (backreceived[0] != 0x00)
-			        {
-//			            printf("Got \"%s\" from JSBSim -> Sending to SimInTech\n", backreceived);
-			            aircraft plane;
-			            if (parse_JSBSim_output(backreceived, plane))
-			            	backsender.send_udp<char>(reinterpret_cast<char&>(plane.time), sizeof(aircraft) * 7);
-			        }
+					backreceiver.receive_udp<char>(backreceived[0], sizeof(char) * MESSAGE_BACK_LEN);
+					if (backreceived[0] != 0x00)
+					{
+//						printf("Got \"%s\" from JSBSim -> Sending to SimInTech\n", backreceived);
+						aircraft plane;
+						if (parse_JSBSim_output(backreceived, plane))
+							backsender.send_udp<char>(reinterpret_cast<char&>(plane.time), sizeof(aircraft) * 7);
+					}
 				}
 				break;
 			}
 		}
-    }
+	}
 }
 
 /** 
@@ -195,9 +195,9 @@ bool parse_JSBSim_output(char* szOutPut, aircraft& plane)
 
 	while (str.good())
 	{
-	    std::string substr;
-	    getline(str, substr, ',');
-	    result.push_back(substr);
+		std::string substr;
+		getline(str, substr, ',');
+		result.push_back(substr);
 	}
 
 	for (int i = 0; i < result.size(); i++)
