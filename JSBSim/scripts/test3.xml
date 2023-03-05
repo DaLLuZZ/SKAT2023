@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sf.net/JSBSimScript.xsl"?>
+<runscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://jsbsim.sf.net/JSBSimScript.xsd"
+    name="Cruise flight in c172p.">
+
+  <use aircraft="p51d" initialize="test_init"/> 
+
+  <run start="0" end="1000" dt="0.008333">
+
+    <property value="0"> simulation/notify-time-trigger </property>
+
+    <event name="Set engines running">
+      <condition> simulation/sim-time-sec ge 0.1 </condition>
+      <set name="fcs/throttle-cmd-norm" action="FG_RAMP" value="0.5"/>
+      <set name="fcs/mixture-cmd-norm" action="FG_RAMP" value="1.0" tc="1.0"/>
+      <set name="propulsion/magneto_cmd" value="3"/>
+      <set name="propulsion/starter_cmd" value="1"/>
+    </event>
+  
+    <event name="Repeating Notify" persistent="true">
+      <description>Output message at 5 second intervals</description>
+      <notify>
+        <property>position/h-agl-ft</property>
+        <property>velocities/vt-fps</property>
+        <property>attitude/phi-rad</property>
+        <property>attitude/theta-rad</property>
+        <property>attitude/psi-rad</property>
+        <property>fcs/throttle-pos-norm</property>
+        <property>fcs/throttle-cmd-norm</property>
+        <property>fcs/rudder-pos-norm</property>
+        <property>fcs/elevator-pos-norm</property>
+        <property>fcs/mixture-pos-norm</property>
+        <property>propulsion/engine[0]/propeller-rpm</property>
+        <property>propulsion/engine[0]/set-running</property>
+      </notify>
+      <condition> simulation/sim-time-sec >= simulation/notify-time-trigger </condition>
+      <set name="simulation/notify-time-trigger" value="5" type="FG_DELTA"/>
+    </event>
+
+  </run>
+
+  <input port="1139"/>
+
+  <output name="127.0.0.1" type="SOCKET" port="1138" rate="100" protocol="UDP">
+    <property>position/h-agl-ft</property>
+    <property>position/lat-gc-deg</property>
+    <property>position/long-gc-deg</property>
+    <property>attitude/pitch-rad</property>
+    <property>attitude/roll-rad</property>
+    <property>attitude/heading-true-rad</property>
+  </output>
+
+</runscript>

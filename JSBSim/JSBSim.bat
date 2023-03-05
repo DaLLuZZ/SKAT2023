@@ -1,2 +1,2 @@
-JSBSim --script=scripts\test.xml --realtime --suspend
+JSBSim --script=scripts\test3.xml --realtime --suspend
 timeout 10
